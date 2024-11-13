@@ -25,6 +25,8 @@ const streamsRoute = require('./api/routes/streams');
 const serverRoute = require('./api/routes/server');
 const relayRoute = require('./api/routes/relay');
 
+const PATH_PREFIX = '/rtmp-dashboard';
+
 class NodeHttpServer {
   constructor(config) {
     this.port = config.http.port || HTTP_PORT;
@@ -51,18 +53,18 @@ class NodeHttpServer {
 
     let adminEntry = path.join(__dirname + '/public/admin/index.html');
     if (Fs.existsSync(adminEntry)) {
-      app.get('/admin/*', (req, res) => {
+      app.get(`${PATH_PREFIX}/admin/*`, (req, res) => {
         res.sendFile(adminEntry);
       });
     }
 
     if (this.config.http.api !== false) {
       if (this.config.auth && this.config.auth.api) {
-        app.use(['/api/*', '/static/*', '/admin/*'], basicAuth(this.config.auth.api_user, this.config.auth.api_pass));
+        app.use([`${PATH_PREFIX}/api/*`, `${PATH_PREFIX}/static/*`, `${PATH_PREFIX}/admin/*`], basicAuth(this.config.auth.api_user, this.config.auth.api_pass));
       }
-      app.use('/api/streams', streamsRoute(context));
-      app.use('/api/server', serverRoute(context));
-      app.use('/api/relay', relayRoute(context));
+      app.use(`${PATH_PREFIX}/api/streams`, streamsRoute(context));
+      app.use(`${PATH_PREFIX}/api/server`, serverRoute(context));
+      app.use(`${PATH_PREFIX}/api/relay`, relayRoute(context));
     }
 
     app.use(Express.static(path.join(__dirname + '/public')));
